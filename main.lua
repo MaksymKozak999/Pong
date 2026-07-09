@@ -18,7 +18,7 @@ function love.load()
 
     love.window.setTitle('Pong')
 
-    largeFont = love.graphics.newFont('Minecraft.ttf', 32)
+    largeFont = love.graphics.newFont('Minecraft.ttf', 15)
     smallFont = love.graphics.newFont('Minecraft.ttf', 10)
 
     largeFont:setFilter('nearest', 'nearest')
@@ -74,6 +74,7 @@ function love.update(dt)
     if game_state == 'play' then
         
         ball:update(dt)
+
         if ball:collides(player1) then
             ball.dx = -ball.dx * 1.05
             ball.x = player1.x + 5
@@ -108,6 +109,19 @@ function love.update(dt)
             ball.dy = -ball.dy
         end
     end
+
+    if ball.x < 0 then 
+        servingplayer = 1
+        player2Score = player2Score + 1
+        game_state = 'start'
+    end
+
+    if ball.x > VIRTUAL_WIDTH then 
+        servingplayer = 2
+        player1Score = player1Score + 1
+        game_state = 'start'
+    end
+
     if game_state == 'start' then
         ball:reset()
     end
