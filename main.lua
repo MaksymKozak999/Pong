@@ -1,0 +1,112 @@
+push = require 'push'
+class = require 'class'
+require 'Ball'
+require 'Paddle'
+
+WINDOW_WIDTH = 1280 
+WINDOW_HEIGHT = 735
+
+VIRTUAL_WIDTH = 423
+VIRTUAL_HEIGHT = 243
+
+PADDLE_SPEED = 300
+
+math.randomseed(os.time())
+
+function love.load()
+    love.graphics.setDefaultFilter('nearest', 'nearest')
+
+    love.window.setTitle('Pong')
+
+    largeFont = love.graphics.newFont('Minecraft.ttf', 32)
+    smallFont = love.graphics.newFont('Minecraft.ttf', 10)
+
+    largeFont:setFilter('nearest', 'nearest')
+    smallFont:setFilter('nearest', 'nearest')
+
+    push:setupScreen(VIRTUAL_WIDTH, VIRTUAL_HEIGHT, WINDOW_WIDTH, WINDOW_HEIGHT, {
+        fullscreen = false,
+        resizable = false,
+        vsync = true
+    })
+
+    player1Score = 0
+    player2Score = 0
+
+    ball = Ball(VIRTUAL_WIDTH / 2 - 2,VIRTUAL_HEIGHT / 2 - 2 , 4, 4)
+    player1 = Paddle(10, 10, 5, 25)
+    player2 = Paddle(VIRTUAL_WIDTH - 15, 10, 5, 25)
+    game_state = 'start'
+end
+
+function love.keypressed(key)
+    if key == 'escape' then 
+        love.event.quit()
+    elseif key == 'space' or key == 'enter' then
+        if game_state == 'start' then
+            game_state = 'play'
+        else
+            game_state = 'start' 
+        end
+    end
+end
+
+function love.update(dt)
+    if love.keyboard.isDown('w') then
+        player1.dy = -PADDLE_SPEED
+    elseif love.keyboard.isDown('s') then
+        player1.dy = PADDLE_SPEED
+    else
+        player1.dy = 0
+    end
+
+    if love.keyboard.isDown('up') then
+        player2.dy = -PADDLE_SPEED
+    elseif love.keyboard.isDown('down') then
+        player2.dy = PADDLE_SPEED
+    else
+        player2.dy = 0
+    end
+
+    player1:update(dt)
+    player2:update(dt)
+    
+    if game_state == 'play' then
+        ball:update(dt)
+    end
+    if game_state == 'start' then
+        ball:reset()
+    end
+end
+
+function love.draw()
+    push:start()
+    love.graphics.setFont(largeFont)
+    love.graphics.clear(207/255, 129/255, 169/255, 0.8)
+    -- first paddle
+    player1:render()
+    --love.graphics.rectangle('fill' , 10, player1Y, 5, 25)
+
+    -- second paddle
+    
+    player2:render()
+    --love.graphics.rectangle('fill', VIRTUAL_WIDTH - 15, player2Y, 5, 25)
+    -- ball
+    ball:render()
+    
+    love.graphics.printf("Hello, Pong!", 0 , 10, VIRTUAL_WIDTH, 'center'  )
+
+    love.graphics.print(tostring(player1Score), VIRTUAL_WIDTH / 2 - 50 , VIRTUAL_HEIGHT / 2 - 80 )
+    love.graphics.print(tostring(player2Score), VIRTUAL_WIDTH / 2 + 30 , VIRTUAL_HEIGHT / 2 - 80 ) 
+
+    displayFPS()
+
+    push:finish()
+end
+
+function displayFPS()
+    love.graphics.setFont(smallFont)
+    love.graphics.setColor(0, 1, 0, 1)
+    love.graphics.print(tostring(love.timer.getFPS()), 25, 10)
+    love.graphics.setColor(1,1,1,1)
+end
