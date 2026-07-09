@@ -9,7 +9,7 @@ WINDOW_HEIGHT = 735
 VIRTUAL_WIDTH = 423
 VIRTUAL_HEIGHT = 243
 
-PADDLE_SPEED = 300
+PADDLE_SPEED = 200
 
 math.randomseed(os.time())
 
@@ -72,7 +72,41 @@ function love.update(dt)
     player2:update(dt)
     
     if game_state == 'play' then
+        
         ball:update(dt)
+        if ball:collides(player1) then
+            ball.dx = -ball.dx * 1.05
+            ball.x = player1.x + 5
+
+
+            if ball.dy < 0 then 
+                ball.dy = -math.random(10,150)
+            else
+                ball.dy = math.random(10,150)
+            end
+        end
+
+        if ball:collides(player2) then
+            ball.dx = -ball.dx * 1.05
+            ball.x = player2.x - 4
+
+
+            if ball.dy < 0 then 
+                ball.dy = -math.random(10,150)
+            else
+                ball.dy = math.random(10,150)
+            end
+        end
+
+        if ball.y <= 0 then 
+            ball.y = 0
+            ball.dy = -ball.dy
+        end
+
+        if ball.y >= VIRTUAL_HEIGHT - 4 then
+            ball.y = VIRTUAL_HEIGHT - 4
+            ball.dy = -ball.dy
+        end
     end
     if game_state == 'start' then
         ball:reset()
