@@ -78,9 +78,9 @@ end
 function player2AI(dt)
 
     if ball.y < player2.y then
-        player2.dy = -PADDLE_SPEED
+        player2.dy = -PADDLE_SPEED + 150
     elseif ball.y > player2.y then
-        player2.dy = PADDLE_SPEED
+        player2.dy = PADDLE_SPEED - 150
     else
         player2.dy = 0
     end
