@@ -9,16 +9,21 @@ WINDOW_HEIGHT = 735
 VIRTUAL_WIDTH = 423
 VIRTUAL_HEIGHT = 243
 
-PADDLE_SPEED = 300
+PADDLE_SPEED = 200
+servingplayer = 0
+
+oldBallDX = 0
+oldBallDY = 0
 
 math.randomseed(os.time())
 
 function love.load()
+    servingplayer = 0
     love.graphics.setDefaultFilter('nearest', 'nearest')
 
     love.window.setTitle('Pong')
 
-    largeFont = love.graphics.newFont('Minecraft.ttf', 32)
+    largeFont = love.graphics.newFont('Minecraft.ttf', 15)
     smallFont = love.graphics.newFont('Minecraft.ttf', 10)
 
     largeFont:setFilter('nearest', 'nearest')
@@ -37,46 +42,134 @@ function love.load()
     player1 = Paddle(10, 10, 5, 25)
     player2 = Paddle(VIRTUAL_WIDTH - 15, 10, 5, 25)
     game_state = 'start'
-end
+end 
 
 function love.keypressed(key)
+
     if key == 'escape' then 
         love.event.quit()
+
     elseif key == 'space' or key == 'enter' then
         if game_state == 'start' then
             game_state = 'play'
-        else
-            game_state = 'start' 
+        elseif game_state == 'win' then
+            game_state = 'start'
         end
+        elseif key == 'p' then
+
+    if game_state == 'play' then
+        oldBallDX = ball.dx
+        oldBallDY = ball.dy
+
+        game_state = 'pause'
+
+    elseif game_state == 'pause' then
+
+        ball.dx = oldBallDX
+        ball.dy = oldBallDY
+
+        game_state = 'play'
     end
+end
+    
+
 end
 
 function love.update(dt)
-    if love.keyboard.isDown('w') then
-        player1.dy = -PADDLE_SPEED
-    elseif love.keyboard.isDown('s') then
-        player1.dy = PADDLE_SPEED
-    else
-        player1.dy = 0
-    end
-
-    if love.keyboard.isDown('up') then
-        player2.dy = -PADDLE_SPEED
-    elseif love.keyboard.isDown('down') then
-        player2.dy = PADDLE_SPEED
-    else
-        player2.dy = 0
-    end
-
-    player1:update(dt)
-    player2:update(dt)
     
-    if game_state == 'play' then
-        ball:update(dt)
-    end
-    if game_state == 'start' then
-        ball:reset()
-    end
+        if love.keyboard.isDown('w') then
+            player1.dy = -PADDLE_SPEED
+        elseif love.keyboard.isDown('s') then
+            player1.dy = PADDLE_SPEED
+        else
+            player1.dy = 0
+        end
+
+        if love.keyboard.isDown('up') then
+            player2.dy = -PADDLE_SPEED
+        elseif love.keyboard.isDown('down') then
+            player2.dy = PADDLE_SPEED
+        else
+            player2.dy = 0
+        end
+
+        if game_state == 'play' then
+            
+            player1:update(dt)
+            player2:update(dt)
+            ball:update(dt)
+
+            if ball:collides(player1) then
+                ball.dx = -ball.dx * 1.05
+                ball.x = player1.x + 5
+
+                if ball.dy < 0 then 
+                    ball.dy = -math.random(10,150)
+                else
+                    ball.dy = math.random(10,150)
+                end
+            end
+
+            if ball:collides(player2) then
+                ball.dx = -ball.dx * 1.05
+                ball.x = player2.x - 4
+
+
+                if ball.dy < 0 then 
+                    ball.dy = -math.random(10,150)
+                else
+                    ball.dy = math.random(10,150)
+                end
+            end
+
+            if ball.y <= 0 then 
+                ball.y = 0
+                ball.dy = -ball.dy
+            end
+
+            if ball.y >= VIRTUAL_HEIGHT - 4 then
+                ball.y = VIRTUAL_HEIGHT - 4
+                ball.dy = -ball.dy
+            end
+        end
+
+        if ball.x < 0 then 
+            servingplayer = 1
+            player2Score = player2Score + 1
+            ball:reset()
+            game_state = 'play'
+        end
+
+        if ball.x > VIRTUAL_WIDTH then 
+            servingplayer = 2
+            player1Score = player1Score + 1
+            ball:reset()
+            game_state = 'play'
+        end
+
+        if player1Score == 5 then
+            winnigtext = "Player 1 Win"
+            player1Score = 0
+            player2Score = 0
+            game_state = 'win'
+        end
+
+        if player2Score == 5 then
+            winnigtext = "Player 2 Win"
+            player1Score = 0
+            player2Score = 0
+            game_state = 'win'
+        end
+        
+        if game_state == 'pause' then
+            winnigtext = 'PAUSE press "p" to unpause'
+        end
+        
+
+        if game_state == 'start' then
+            ball:reset()
+        end 
+    
 end
 
 function love.draw()
@@ -93,8 +186,15 @@ function love.draw()
     --love.graphics.rectangle('fill', VIRTUAL_WIDTH - 15, player2Y, 5, 25)
     -- ball
     ball:render()
-    
-    love.graphics.printf("Hello, Pong!", 0 , 10, VIRTUAL_WIDTH, 'center'  )
+    if game_state == 'start' then
+        love.graphics.printf("Hello, Pong!", 0 , 10, VIRTUAL_WIDTH, 'center'  )
+    elseif game_state == 'play' then
+        love.graphics.printf("Play", 0 , 10, VIRTUAL_WIDTH, 'center'  )
+    elseif game_state == 'win' then
+        love.graphics.printf(winnigtext, 0, 10, VIRTUAL_WIDTH, 'center')
+    elseif game_state == 'pause' then
+        love.graphics.printf(winnigtext, 0, 10, VIRTUAL_WIDTH, 'center')
+    end
 
     love.graphics.print(tostring(player1Score), VIRTUAL_WIDTH / 2 - 50 , VIRTUAL_HEIGHT / 2 - 80 )
     love.graphics.print(tostring(player2Score), VIRTUAL_WIDTH / 2 + 30 , VIRTUAL_HEIGHT / 2 - 80 ) 
