@@ -75,6 +75,18 @@ end
 
 end
 
+function player2AI(dt)
+
+    if ball.y < player2.y then
+        player2.dy = -PADDLE_SPEED + 150
+    elseif ball.y > player2.y then
+        player2.dy = PADDLE_SPEED - 150
+    else
+        player2.dy = 0
+    end
+
+end
+
 function love.update(dt)
     
         if love.keyboard.isDown('w') then
@@ -85,13 +97,15 @@ function love.update(dt)
             player1.dy = 0
         end
 
-        if love.keyboard.isDown('up') then
-            player2.dy = -PADDLE_SPEED
-        elseif love.keyboard.isDown('down') then
-            player2.dy = PADDLE_SPEED
-        else
-            player2.dy = 0
-        end
+        player2AI(dt)
+
+        --if love.keyboard.isDown('up') then
+          --  player2.dy = -PADDLE_SPEED
+        --elseif love.keyboard.isDown('down') then
+          --  player2.dy = PADDLE_SPEED
+        --else
+          --  player2.dy = 0
+        --end
 
         if game_state == 'play' then
             
