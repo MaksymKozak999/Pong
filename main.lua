@@ -39,7 +39,7 @@ function love.load()
 
     push:setupScreen(VIRTUAL_WIDTH, VIRTUAL_HEIGHT, WINDOW_WIDTH, WINDOW_HEIGHT, {
         fullscreen = false,
-        resizable = false,
+        resizable = true,
         vsync = true
     })
 
@@ -50,6 +50,10 @@ function love.load()
     player1 = Paddle(10, 10, 5, 25)
     player2 = Paddle(VIRTUAL_WIDTH - 15, 10, 5, 25)
     game_state = 'start'
+end 
+
+function love.resize(w, h)
+    push:resize(w, h)
 end 
 
 function love.keypressed(key)
