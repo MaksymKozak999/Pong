@@ -15,6 +15,14 @@ servingplayer = 0
 oldBallDX = 0
 oldBallDY = 0
 
+
+sounds = {
+    ['paddle_hit'] = love.audio.newSource('sounds/paddle_hit.wav', 'static'),
+    ['wall_hit'] = love.audio.newSource('sounds/wall_hit.wav', 'static'),
+    ['score'] = love.audio.newSource('sounds/score.wav', 'static'),
+    ['win'] = love.audio.newSource('sounds/win.wav', 'static')
+}
+
 math.randomseed(os.time())
 
 function love.load()
@@ -114,6 +122,7 @@ function love.update(dt)
             ball:update(dt)
 
             if ball:collides(player1) then
+                sounds['paddle_hit']:play()
                 ball.dx = -ball.dx * 1.05
                 ball.x = player1.x + 5
 
@@ -125,6 +134,8 @@ function love.update(dt)
             end
 
             if ball:collides(player2) then
+                sounds['paddle_hit']:play()
+
                 ball.dx = -ball.dx * 1.05
                 ball.x = player2.x - 4
 
@@ -137,24 +148,29 @@ function love.update(dt)
             end
 
             if ball.y <= 0 then 
+                sounds['wall_hit']:play()
                 ball.y = 0
                 ball.dy = -ball.dy
             end
 
             if ball.y >= VIRTUAL_HEIGHT - 4 then
+                sounds['wall_hit']:play()
                 ball.y = VIRTUAL_HEIGHT - 4
                 ball.dy = -ball.dy
             end
         end
 
         if ball.x < 0 then 
+            sounds['score']:play()
+
             servingplayer = 1
             player2Score = player2Score + 1
             ball:reset()
             game_state = 'play'
         end
 
-        if ball.x > VIRTUAL_WIDTH then 
+        if ball.x > VIRTUAL_WIDTH then
+            sounds['score']:play() 
             servingplayer = 2
             player1Score = player1Score + 1
             ball:reset()
@@ -162,6 +178,7 @@ function love.update(dt)
         end
 
         if player1Score == 5 then
+            sounds['win']:play()
             winnigtext = "Player 1 Win"
             player1Score = 0
             player2Score = 0
@@ -169,6 +186,7 @@ function love.update(dt)
         end
 
         if player2Score == 5 then
+            sounds['win']:play()
             winnigtext = "Player 2 Win"
             player1Score = 0
             player2Score = 0
