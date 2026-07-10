@@ -12,6 +12,9 @@ VIRTUAL_HEIGHT = 243
 PADDLE_SPEED = 200
 servingplayer = 0
 
+oldBallDX = 0
+oldBallDY = 0
+
 math.randomseed(os.time())
 
 function love.load()
@@ -39,21 +42,37 @@ function love.load()
     player1 = Paddle(10, 10, 5, 25)
     player2 = Paddle(VIRTUAL_WIDTH - 15, 10, 5, 25)
     game_state = 'start'
-end
+end 
 
 function love.keypressed(key)
+
     if key == 'escape' then 
         love.event.quit()
+
     elseif key == 'space' or key == 'enter' then
         if game_state == 'start' then
             game_state = 'play'
-        else
-            game_state = 'start' 
+        elseif game_state == 'win' then
+            game_state = 'start'
         end
+        elseif key == 'p' then
+
+    if game_state == 'play' then
+        oldBallDX = ball.dx
+        oldBallDY = ball.dy
+
+        game_state = 'pause'
+
+    elseif game_state == 'pause' then
+
+        ball.dx = oldBallDX
+        ball.dy = oldBallDY
+
+        game_state = 'play'
     end
-    if game_state == 'win' and key == 'space' then
-        game_state = 'start'
-    end
+end
+    
+
 end
 
 function love.update(dt)
@@ -74,17 +93,15 @@ function love.update(dt)
             player2.dy = 0
         end
 
-        player1:update(dt)
-        player2:update(dt)
-        
         if game_state == 'play' then
             
+            player1:update(dt)
+            player2:update(dt)
             ball:update(dt)
 
             if ball:collides(player1) then
                 ball.dx = -ball.dx * 1.05
                 ball.x = player1.x + 5
-
 
                 if ball.dy < 0 then 
                     ball.dy = -math.random(10,150)
@@ -144,12 +161,14 @@ function love.update(dt)
             game_state = 'win'
         end
         
+        if game_state == 'pause' then
+            winnigtext = 'PAUSE press "p" to unpause'
+        end
+        
+
         if game_state == 'start' then
             ball:reset()
         end 
-
-    
-    
     
 end
 
@@ -172,6 +191,8 @@ function love.draw()
     elseif game_state == 'play' then
         love.graphics.printf("Play", 0 , 10, VIRTUAL_WIDTH, 'center'  )
     elseif game_state == 'win' then
+        love.graphics.printf(winnigtext, 0, 10, VIRTUAL_WIDTH, 'center')
+    elseif game_state == 'pause' then
         love.graphics.printf(winnigtext, 0, 10, VIRTUAL_WIDTH, 'center')
     end
 
