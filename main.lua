@@ -120,14 +120,14 @@ function love.update(dt)
             servingplayer = 1
             player2Score = player2Score + 1
             ball:reset()
-            game_state = 'start'
+            game_state = 'play'
         end
 
         if ball.x > VIRTUAL_WIDTH then 
             servingplayer = 2
             player1Score = player1Score + 1
             ball:reset()
-            game_state = 'start'
+            game_state = 'play'
         end
 
         if player1Score == 5 then
